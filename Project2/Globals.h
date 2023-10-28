@@ -1,11 +1,7 @@
 #pragma once
 
-#include "SDL2/include/SDL_vulkan.h"
-#include "vulkan/vulkan.h"
-
-#include "SDL2/include/SDL.h"
-
 // Global Settings
+
 const char                      gAppName[] = "VulkanDemo";
 const char                      gEngineName[] = "VulkanDemoEngine";
 int                             gWindowWidth = 1280;
