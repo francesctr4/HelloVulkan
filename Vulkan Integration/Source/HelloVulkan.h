@@ -12,11 +12,22 @@
 #include "External/vulkan/vulkan.h"
 #pragma comment (lib, "Source/External/vulkan/lib/vulkan-1.lib")
 
+const std::vector<const char*> validationLayers = { "VK_LAYER_KHRONOS_validation" };
+
 #ifdef _DEBUG
 const bool enableValidationLayers = true;
 #else
 const bool enableValidationLayers = false;
 #endif
+
+VkResult CreateDebugUtilsMessengerEXT(VkInstance instance, const
+	VkDebugUtilsMessengerCreateInfoEXT* pCreateInfo, const
+	VkAllocationCallbacks* pAllocator, VkDebugUtilsMessengerEXT*
+	pDebugMessenger);
+
+void DestroyDebugUtilsMessengerEXT(VkInstance instance,
+	VkDebugUtilsMessengerEXT debugMessenger, const
+	VkAllocationCallbacks* pAllocator);
 
 struct QueueFamilyIndices {
 
@@ -43,7 +54,9 @@ private:
 	bool CreateInstance();
 	void SetupDebugMessenger();
 	void PickPhysicalDevice();
-	bool IsDeviceSuitable(VkPhysicalDevice device);
+	void CreateLogicalDevice();
+
+	bool IsPhysicalDeviceSuitable(VkPhysicalDevice device);
 	QueueFamilyIndices FindQueueFamilies(VkPhysicalDevice device);
 
 	bool CheckValidationLayerSupport(const std::vector<const char*>& validationLayers);
@@ -56,15 +69,6 @@ private:
 		const VkDebugUtilsMessengerCallbackDataEXT* pCallbackData, 
 		void* pUserData);
 
-	static VkResult CreateDebugUtilsMessengerEXT(VkInstance instance, const
-		VkDebugUtilsMessengerCreateInfoEXT* pCreateInfo, const
-		VkAllocationCallbacks* pAllocator, VkDebugUtilsMessengerEXT*
-		pDebugMessenger);
-
-	static void DestroyDebugUtilsMessengerEXT(VkInstance instance,
-		VkDebugUtilsMessengerEXT debugMessenger, const
-		VkAllocationCallbacks* pAllocator);
-
 	void PopulateDebugMessengerCreateInfo(VkDebugUtilsMessengerCreateInfoEXT& createInfo);
 
 	void Update();
@@ -76,6 +80,8 @@ private:
 	VkInstance instance;
 	VkDebugUtilsMessengerEXT debugMessenger;
 	VkPhysicalDevice physicalDevice = VK_NULL_HANDLE;
+	VkDevice logicalDevice;
+	VkQueue graphicsQueue;
 
 	//VkSurfaceKHR surface;
 

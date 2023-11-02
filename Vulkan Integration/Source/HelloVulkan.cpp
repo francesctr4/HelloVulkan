@@ -42,13 +42,12 @@ void HelloVulkan::InitVulkan()
     CreateInstance();
     SetupDebugMessenger();
     PickPhysicalDevice();
+    CreateLogicalDevice();
 }
 
 bool HelloVulkan::CreateInstance()
 {
     bool ret = true;
-
-    const std::vector<const char*> validationLayers = { "VK_LAYER_KHRONOS_validation" };
 
     if (enableValidationLayers && !CheckValidationLayerSupport(validationLayers)) {
 
@@ -150,7 +149,7 @@ void HelloVulkan::PickPhysicalDevice()
 
     for (const auto& device : devices) {
 
-        if (IsDeviceSuitable(device)) {
+        if (IsPhysicalDeviceSuitable(device)) {
 
             physicalDevice = device;
 
@@ -173,7 +172,53 @@ void HelloVulkan::PickPhysicalDevice()
 
 }
 
-bool HelloVulkan::IsDeviceSuitable(VkPhysicalDevice device)
+void HelloVulkan::CreateLogicalDevice()
+{
+    QueueFamilyIndices indices = FindQueueFamilies(physicalDevice);
+    
+    VkDeviceQueueCreateInfo queueCreateInfo{};
+
+    queueCreateInfo.sType = VK_STRUCTURE_TYPE_DEVICE_QUEUE_CREATE_INFO;
+    queueCreateInfo.queueFamilyIndex = indices.graphicsFamily.value();
+    queueCreateInfo.queueCount = 1;
+
+    float queuePriority = 1.0f;
+    queueCreateInfo.pQueuePriorities = &queuePriority;
+
+    // Specifying used device features
+
+    VkPhysicalDeviceFeatures deviceFeatures{};
+    // [...]
+
+    VkDeviceCreateInfo createInfo{};
+    createInfo.sType = VK_STRUCTURE_TYPE_DEVICE_CREATE_INFO;
+
+    createInfo.pQueueCreateInfos = &queueCreateInfo;
+    createInfo.queueCreateInfoCount = 1;
+
+    createInfo.pEnabledFeatures = &deviceFeatures;
+
+    createInfo.enabledExtensionCount = 0;
+
+    createInfo.enabledLayerCount = enableValidationLayers ? static_cast<uint32_t>(validationLayers.size()) : 0;
+    createInfo.ppEnabledLayerNames = enableValidationLayers ? validationLayers.data() : nullptr;
+
+    if (vkCreateDevice(physicalDevice, &createInfo, nullptr, &logicalDevice) != VK_SUCCESS) {
+        
+        std::cout << "Failed to create logical device!\n";
+
+    }
+    else {
+
+        std::cout << "Logical Device created successfully!\n";
+
+    }
+
+    vkGetDeviceQueue(logicalDevice, indices.graphicsFamily.value(), 0, &graphicsQueue);
+
+}
+
+bool HelloVulkan::IsPhysicalDeviceSuitable(VkPhysicalDevice device)
 {
     bool ret = false;
 
@@ -333,7 +378,7 @@ VKAPI_ATTR VkBool32 VKAPI_CALL HelloVulkan::DebugCallback(VkDebugUtilsMessageSev
     return VK_FALSE;
 }
 
-VkResult HelloVulkan::CreateDebugUtilsMessengerEXT(VkInstance instance, const VkDebugUtilsMessengerCreateInfoEXT* pCreateInfo, const VkAllocationCallbacks* pAllocator, VkDebugUtilsMessengerEXT* pDebugMessenger)
+VkResult CreateDebugUtilsMessengerEXT(VkInstance instance, const VkDebugUtilsMessengerCreateInfoEXT* pCreateInfo, const VkAllocationCallbacks* pAllocator, VkDebugUtilsMessengerEXT* pDebugMessenger)
 {
     PFN_vkCreateDebugUtilsMessengerEXT createDUMEXT =
         (PFN_vkCreateDebugUtilsMessengerEXT)vkGetInstanceProcAddr(instance, "vkCreateDebugUtilsMessengerEXT");
@@ -351,7 +396,7 @@ VkResult HelloVulkan::CreateDebugUtilsMessengerEXT(VkInstance instance, const Vk
 
 }
 
-void HelloVulkan::DestroyDebugUtilsMessengerEXT(VkInstance instance, VkDebugUtilsMessengerEXT debugMessenger, const VkAllocationCallbacks* pAllocator)
+void DestroyDebugUtilsMessengerEXT(VkInstance instance, VkDebugUtilsMessengerEXT debugMessenger, const VkAllocationCallbacks* pAllocator)
 {
     PFN_vkDestroyDebugUtilsMessengerEXT destroyDUMEXT =
         (PFN_vkDestroyDebugUtilsMessengerEXT)vkGetInstanceProcAddr(instance, "vkDestroyDebugUtilsMessengerEXT");
@@ -399,6 +444,8 @@ void HelloVulkan::Update()
 
 void HelloVulkan::CleanUp()
 {
+    vkDestroyDevice(logicalDevice, nullptr);
+
     if (enableValidationLayers) {
 
         DestroyDebugUtilsMessengerEXT(instance, debugMessenger, nullptr);
