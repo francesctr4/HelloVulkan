@@ -2,6 +2,7 @@
 
 #include <iostream>
 #include <vector>
+#include <optional>
 
 #include "External/SDL2/include/SDL.h"
 #include "External/SDL2/include/SDL_vulkan.h"
@@ -17,6 +18,18 @@ const bool enableValidationLayers = true;
 const bool enableValidationLayers = false;
 #endif
 
+struct QueueFamilyIndices {
+
+	std::optional<uint32_t> graphicsFamily;
+
+	bool IsComplete() { 
+
+		return graphicsFamily.has_value(); 
+
+	}
+
+};
+
 class HelloVulkan {
 public:
 
@@ -29,6 +42,9 @@ private:
 	void InitVulkan();
 	bool CreateInstance();
 	void SetupDebugMessenger();
+	void PickPhysicalDevice();
+	bool IsDeviceSuitable(VkPhysicalDevice device);
+	QueueFamilyIndices FindQueueFamilies(VkPhysicalDevice device);
 
 	bool CheckValidationLayerSupport(const std::vector<const char*>& validationLayers);
 
@@ -59,6 +75,7 @@ private:
 	SDL_Window* window;
 	VkInstance instance;
 	VkDebugUtilsMessengerEXT debugMessenger;
+	VkPhysicalDevice physicalDevice = VK_NULL_HANDLE;
 
 	//VkSurfaceKHR surface;
 
