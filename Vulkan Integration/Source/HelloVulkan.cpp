@@ -197,7 +197,6 @@ void HelloVulkan::CreateLogicalDevice()
     createInfo.queueCreateInfoCount = 1;
 
     createInfo.pEnabledFeatures = &deviceFeatures;
-
     createInfo.enabledExtensionCount = 0;
 
     createInfo.enabledLayerCount = enableValidationLayers ? static_cast<uint32_t>(validationLayers.size()) : 0;
