@@ -46,23 +46,17 @@ bool HelloVulkan::CreateInstance()
 {
     bool ret = true;
 
-    unsigned int sdlExtensionCount;
+    const std::vector<const char*> validationLayers = { "VK_LAYER_KHRONOS_validation" };
 
-    if (!SDL_Vulkan_GetInstanceExtensions(window, &sdlExtensionCount, nullptr)) {
+    if (enableValidationLayers && !CheckValidationLayerSupport(validationLayers)) {
 
-        std::cout << "Could not get the number of required instance extensions from SDL." << std::endl;
+        std::cout << "Validation Layers Requested, but not available!" << std::endl;
 
-        ret = false;
     }
 
-    std::vector<const char*> sdlExtensions(sdlExtensionCount);
+    //ShowSupportedExtensions();
 
-    if (!SDL_Vulkan_GetInstanceExtensions(window, &sdlExtensionCount, sdlExtensions.data())) {
-
-        std::cout << "Could not get the names of required instance extensions from SDL." << std::endl;
-
-        ret = false;
-    }
+    std::vector<const char*> extensions = GetRequiredExtensions();
 
     VkApplicationInfo appInfo = {};
 
@@ -78,12 +72,12 @@ bool HelloVulkan::CreateInstance()
 
     createInfo.sType = VK_STRUCTURE_TYPE_INSTANCE_CREATE_INFO;
     createInfo.pNext = nullptr;
-    createInfo.flags = 0;
+    createInfo.flags |= VK_INSTANCE_CREATE_ENUMERATE_PORTABILITY_BIT_KHR;
     createInfo.pApplicationInfo = &appInfo;
-    createInfo.enabledExtensionCount = static_cast<uint32_t>(sdlExtensions.size());
-    createInfo.ppEnabledExtensionNames = sdlExtensions.data();
-    createInfo.enabledLayerCount = 0;
-    createInfo.ppEnabledLayerNames = nullptr;
+    createInfo.enabledExtensionCount = static_cast<uint32_t>(extensions.size());
+    createInfo.ppEnabledExtensionNames = extensions.data();
+    createInfo.enabledLayerCount = enableValidationLayers ? static_cast<uint32_t>(validationLayers.size()) : 0;
+    createInfo.ppEnabledLayerNames = enableValidationLayers ? validationLayers.data() : nullptr;
 
     VkResult result = vkCreateInstance(&createInfo, nullptr, &instance);
 
@@ -113,6 +107,106 @@ bool HelloVulkan::CreateInstance()
     }
 
     return ret;
+}
+
+bool HelloVulkan::CheckValidationLayerSupport(const std::vector<const char*>& validationLayers)
+{
+    bool ret = true;
+
+    uint32_t layerCount;
+    vkEnumerateInstanceLayerProperties(&layerCount, nullptr);
+    
+    std::vector<VkLayerProperties> availableLayers(layerCount);
+    vkEnumerateInstanceLayerProperties(&layerCount, availableLayers.data());
+
+    for (const char* layerName : validationLayers) {
+        
+        bool layerFound = false;
+        
+        for (const auto& layerProperties : availableLayers) {
+
+            if (strcmp(layerName, layerProperties.layerName) == 0) {
+
+                layerFound = true;
+                break;
+                    
+            }
+            
+        }
+        
+        if (!layerFound) {
+            
+            ret = false;
+            
+        }
+        
+    }
+  
+    return ret;
+}
+
+std::vector<const char*> HelloVulkan::GetRequiredExtensions()
+{
+    uint32_t sdlExtensionCount = 0;
+
+    if (!SDL_Vulkan_GetInstanceExtensions(window, &sdlExtensionCount, nullptr)) {
+
+        std::cout << "Could not get the number of required instance extensions from SDL." << std::endl;
+
+        return {}; // Returns an empty vector
+
+    }
+
+    std::vector<const char*> extensions(sdlExtensionCount);
+
+    if (!SDL_Vulkan_GetInstanceExtensions(window, &sdlExtensionCount, extensions.data())) {
+
+        std::cout << "Could not get the names of required instance extensions from SDL." << std::endl;
+        
+        return {}; // Returns an empty vector
+
+    }
+
+    extensions.push_back(VK_KHR_PORTABILITY_ENUMERATION_EXTENSION_NAME);
+
+    if (enableValidationLayers) {
+
+        extensions.push_back(VK_EXT_DEBUG_UTILS_EXTENSION_NAME);
+
+    }
+
+    return extensions;
+}
+
+void HelloVulkan::ShowSupportedExtensions()
+{
+    uint32_t extensionCount = 0;
+    vkEnumerateInstanceExtensionProperties(nullptr, &extensionCount, nullptr);
+
+    std::vector<VkExtensionProperties> supportedExtensions(extensionCount);
+    vkEnumerateInstanceExtensionProperties(nullptr, &extensionCount, supportedExtensions.data());
+
+    std::cout << "Available Extensions:\n";
+
+    for (const auto& extension : supportedExtensions) {
+
+        std::cout << '\t' << extension.extensionName << '\n';
+
+    }
+
+}
+
+VKAPI_ATTR VkBool32 VKAPI_CALL HelloVulkan::debugCallback(VkDebugUtilsMessageSeverityFlagBitsEXT messageSeverity, VkDebugUtilsMessageTypeFlagsEXT messageType, const VkDebugUtilsMessengerCallbackDataEXT* pCallbackData, void* pUserData)
+{
+    std::cerr << "Validation layer: " << pCallbackData->pMessage << std::endl;
+
+    if (messageSeverity >= VK_DEBUG_UTILS_MESSAGE_SEVERITY_WARNING_BIT_EXT) {
+        
+        // Message is important enough to show.
+            
+    }
+
+    return VK_FALSE;
 }
 
 void HelloVulkan::Update()
