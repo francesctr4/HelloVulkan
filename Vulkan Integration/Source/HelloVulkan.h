@@ -28,15 +28,28 @@ private:
 
 	void InitVulkan();
 	bool CreateInstance();
+	void SetupDebugMessenger();
+
 	bool CheckValidationLayerSupport(const std::vector<const char*>& validationLayers);
 
 	void ShowSupportedExtensions();
 	std::vector<const char*> GetRequiredExtensions();
 
-	static VKAPI_ATTR VkBool32 VKAPI_CALL debugCallback(VkDebugUtilsMessageSeverityFlagBitsEXT messageSeverity,
+	static VKAPI_ATTR VkBool32 VKAPI_CALL DebugCallback(VkDebugUtilsMessageSeverityFlagBitsEXT messageSeverity,
 		VkDebugUtilsMessageTypeFlagsEXT messageType, 
 		const VkDebugUtilsMessengerCallbackDataEXT* pCallbackData, 
 		void* pUserData);
+
+	static VkResult CreateDebugUtilsMessengerEXT(VkInstance instance, const
+		VkDebugUtilsMessengerCreateInfoEXT* pCreateInfo, const
+		VkAllocationCallbacks* pAllocator, VkDebugUtilsMessengerEXT*
+		pDebugMessenger);
+
+	static void DestroyDebugUtilsMessengerEXT(VkInstance instance,
+		VkDebugUtilsMessengerEXT debugMessenger, const
+		VkAllocationCallbacks* pAllocator);
+
+	void PopulateDebugMessengerCreateInfo(VkDebugUtilsMessengerCreateInfoEXT& createInfo);
 
 	void Update();
 	void CleanUp();
@@ -45,6 +58,8 @@ private:
 
 	SDL_Window* window;
 	VkInstance instance;
+	VkDebugUtilsMessengerEXT debugMessenger;
+
 	//VkSurfaceKHR surface;
 
 };

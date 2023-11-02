@@ -40,6 +40,7 @@ bool HelloVulkan::InitSDLWindow()
 void HelloVulkan::InitVulkan()
 {
     CreateInstance();
+    SetupDebugMessenger();
 }
 
 bool HelloVulkan::CreateInstance()
@@ -79,13 +80,19 @@ bool HelloVulkan::CreateInstance()
     createInfo.enabledLayerCount = enableValidationLayers ? static_cast<uint32_t>(validationLayers.size()) : 0;
     createInfo.ppEnabledLayerNames = enableValidationLayers ? validationLayers.data() : nullptr;
 
+    VkDebugUtilsMessengerCreateInfoEXT debugCreateInfo{};
+
+    if (enableValidationLayers) PopulateDebugMessengerCreateInfo(debugCreateInfo);
+
+    createInfo.pNext = enableValidationLayers ? (VkDebugUtilsMessengerCreateInfoEXT*)&debugCreateInfo : nullptr;
+
     VkResult result = vkCreateInstance(&createInfo, nullptr, &instance);
 
     switch (result)
     {
     case VK_SUCCESS:
 
-        std::cout << "Vulkan instance created successfully.";
+        std::cout << "Vulkan instance created successfully.\n";
 
         break;
 
@@ -107,6 +114,21 @@ bool HelloVulkan::CreateInstance()
     }
 
     return ret;
+}
+
+void HelloVulkan::SetupDebugMessenger()
+{
+    if (!enableValidationLayers) return;
+
+    VkDebugUtilsMessengerCreateInfoEXT createInfo{};
+
+    PopulateDebugMessengerCreateInfo(createInfo);
+
+    if (CreateDebugUtilsMessengerEXT(instance, &createInfo, nullptr, &debugMessenger) != VK_SUCCESS) {
+
+        std::cout << "Failed to Set Up Debug Messenger!" << std::endl;
+
+    }
 }
 
 bool HelloVulkan::CheckValidationLayerSupport(const std::vector<const char*>& validationLayers)
@@ -196,9 +218,9 @@ void HelloVulkan::ShowSupportedExtensions()
 
 }
 
-VKAPI_ATTR VkBool32 VKAPI_CALL HelloVulkan::debugCallback(VkDebugUtilsMessageSeverityFlagBitsEXT messageSeverity, VkDebugUtilsMessageTypeFlagsEXT messageType, const VkDebugUtilsMessengerCallbackDataEXT* pCallbackData, void* pUserData)
+VKAPI_ATTR VkBool32 VKAPI_CALL HelloVulkan::DebugCallback(VkDebugUtilsMessageSeverityFlagBitsEXT messageSeverity, VkDebugUtilsMessageTypeFlagsEXT messageType, const VkDebugUtilsMessengerCallbackDataEXT* pCallbackData, void* pUserData)
 {
-    std::cerr << "Validation layer: " << pCallbackData->pMessage << std::endl;
+    std::cout << "Validation layer: " << pCallbackData->pMessage << std::endl;
 
     if (messageSeverity >= VK_DEBUG_UTILS_MESSAGE_SEVERITY_WARNING_BIT_EXT) {
         
@@ -207,6 +229,55 @@ VKAPI_ATTR VkBool32 VKAPI_CALL HelloVulkan::debugCallback(VkDebugUtilsMessageSev
     }
 
     return VK_FALSE;
+}
+
+VkResult HelloVulkan::CreateDebugUtilsMessengerEXT(VkInstance instance, const VkDebugUtilsMessengerCreateInfoEXT* pCreateInfo, const VkAllocationCallbacks* pAllocator, VkDebugUtilsMessengerEXT* pDebugMessenger)
+{
+    PFN_vkCreateDebugUtilsMessengerEXT createDUMEXT =
+        (PFN_vkCreateDebugUtilsMessengerEXT)vkGetInstanceProcAddr(instance, "vkCreateDebugUtilsMessengerEXT");
+
+    if (createDUMEXT != nullptr) {
+
+        return createDUMEXT(instance, pCreateInfo, pAllocator, pDebugMessenger);
+
+    }
+    else {
+
+        return VK_ERROR_EXTENSION_NOT_PRESENT;
+
+    }
+
+}
+
+void HelloVulkan::DestroyDebugUtilsMessengerEXT(VkInstance instance, VkDebugUtilsMessengerEXT debugMessenger, const VkAllocationCallbacks* pAllocator)
+{
+    PFN_vkDestroyDebugUtilsMessengerEXT destroyDUMEXT =
+        (PFN_vkDestroyDebugUtilsMessengerEXT)vkGetInstanceProcAddr(instance, "vkDestroyDebugUtilsMessengerEXT");
+
+    if (destroyDUMEXT != nullptr) {
+
+        destroyDUMEXT(instance, debugMessenger, pAllocator);
+
+    }
+
+}
+
+void HelloVulkan::PopulateDebugMessengerCreateInfo(VkDebugUtilsMessengerCreateInfoEXT& createInfo)
+{
+    createInfo = {};
+
+    createInfo.sType = VK_STRUCTURE_TYPE_DEBUG_UTILS_MESSENGER_CREATE_INFO_EXT;
+
+    createInfo.messageSeverity = VK_DEBUG_UTILS_MESSAGE_SEVERITY_VERBOSE_BIT_EXT
+        | VK_DEBUG_UTILS_MESSAGE_SEVERITY_WARNING_BIT_EXT
+        | VK_DEBUG_UTILS_MESSAGE_SEVERITY_ERROR_BIT_EXT;
+
+    createInfo.messageType = VK_DEBUG_UTILS_MESSAGE_TYPE_GENERAL_BIT_EXT
+        | VK_DEBUG_UTILS_MESSAGE_TYPE_VALIDATION_BIT_EXT
+        | VK_DEBUG_UTILS_MESSAGE_TYPE_PERFORMANCE_BIT_EXT;
+
+    createInfo.pfnUserCallback = DebugCallback;
+    createInfo.pUserData = nullptr;
 }
 
 void HelloVulkan::Update()
@@ -226,6 +297,12 @@ void HelloVulkan::Update()
 
 void HelloVulkan::CleanUp()
 {
+    if (enableValidationLayers) {
+
+        DestroyDebugUtilsMessengerEXT(instance, debugMessenger, nullptr);
+
+    }
+
     // Destroy the Vulkan Surface
     //vkDestroySurfaceKHR(instance, surface, nullptr);
 
