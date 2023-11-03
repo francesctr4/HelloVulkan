@@ -41,6 +41,7 @@ void HelloVulkan::InitVulkan()
 {
     CreateInstance();
     SetupDebugMessenger();
+    CreateSurface();
     PickPhysicalDevice();
     CreateLogicalDevice();
 }
@@ -116,6 +117,20 @@ bool HelloVulkan::CreateInstance()
     return ret;
 }
 
+void HelloVulkan::CreateSurface()
+{
+    if (!SDL_Vulkan_CreateSurface(window, instance, &surface)) {
+
+        std::cout << "Failed to create Vulkan surface!" << std::endl;
+
+    }
+    else {
+
+        std::cout << "Vulkan surface created successfully." << std::endl;
+
+    }
+}
+
 void HelloVulkan::SetupDebugMessenger()
 {
     if (!enableValidationLayers) return;
@@ -176,14 +191,24 @@ void HelloVulkan::CreateLogicalDevice()
 {
     QueueFamilyIndices indices = FindQueueFamilies(physicalDevice);
     
-    VkDeviceQueueCreateInfo queueCreateInfo{};
+    std::vector<VkDeviceQueueCreateInfo> queueCreateInfos;
 
-    queueCreateInfo.sType = VK_STRUCTURE_TYPE_DEVICE_QUEUE_CREATE_INFO;
-    queueCreateInfo.queueFamilyIndex = indices.graphicsFamily.value();
-    queueCreateInfo.queueCount = 1;
+    std::set<uint32_t> uniqueQueueFamilies = { indices.graphicsFamily.value(), indices.presentFamily.value() };
 
     float queuePriority = 1.0f;
-    queueCreateInfo.pQueuePriorities = &queuePriority;
+
+    for (uint32_t queueFamily : uniqueQueueFamilies) {
+
+        VkDeviceQueueCreateInfo queueCreateInfo{};
+        queueCreateInfo.sType = VK_STRUCTURE_TYPE_DEVICE_QUEUE_CREATE_INFO;
+
+        queueCreateInfo.queueFamilyIndex = queueFamily;
+        queueCreateInfo.queueCount = 1;
+        queueCreateInfo.pQueuePriorities = &queuePriority;
+
+        queueCreateInfos.push_back(queueCreateInfo);
+        
+    }
 
     // Specifying used device features
 
@@ -193,8 +218,8 @@ void HelloVulkan::CreateLogicalDevice()
     VkDeviceCreateInfo createInfo{};
     createInfo.sType = VK_STRUCTURE_TYPE_DEVICE_CREATE_INFO;
 
-    createInfo.pQueueCreateInfos = &queueCreateInfo;
-    createInfo.queueCreateInfoCount = 1;
+    createInfo.queueCreateInfoCount = static_cast<uint32_t>(queueCreateInfos.size());
+    createInfo.pQueueCreateInfos = queueCreateInfos.data();
 
     createInfo.pEnabledFeatures = &deviceFeatures;
     createInfo.enabledExtensionCount = 0;
@@ -214,6 +239,7 @@ void HelloVulkan::CreateLogicalDevice()
     }
 
     vkGetDeviceQueue(logicalDevice, indices.graphicsFamily.value(), 0, &graphicsQueue);
+    vkGetDeviceQueue(logicalDevice, indices.presentFamily.value(), 0, &presentQueue);
 
 }
 
@@ -262,6 +288,15 @@ QueueFamilyIndices HelloVulkan::FindQueueFamilies(VkPhysicalDevice device)
 
             indices.graphicsFamily = i;
             
+        }
+
+        VkBool32 presentSupport = false;
+        vkGetPhysicalDeviceSurfaceSupportKHR(device, i, surface, &presentSupport);
+
+        if (presentSupport) {
+            
+            indices.presentFamily = i;
+           
         }
 
         if (indices.IsComplete()) {
@@ -452,7 +487,7 @@ void HelloVulkan::CleanUp()
     }
 
     // Destroy the Vulkan Surface
-    //vkDestroySurfaceKHR(instance, surface, nullptr);
+    vkDestroySurfaceKHR(instance, surface, nullptr);
 
     // Destroy the Vulkan Instance
     vkDestroyInstance(instance, nullptr);

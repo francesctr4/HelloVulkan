@@ -3,6 +3,7 @@
 #include <iostream>
 #include <vector>
 #include <optional>
+#include <set>
 
 #include "External/SDL2/include/SDL.h"
 #include "External/SDL2/include/SDL_vulkan.h"
@@ -32,10 +33,11 @@ void DestroyDebugUtilsMessengerEXT(VkInstance instance,
 struct QueueFamilyIndices {
 
 	std::optional<uint32_t> graphicsFamily;
+	std::optional<uint32_t> presentFamily;
 
 	bool IsComplete() { 
 
-		return graphicsFamily.has_value(); 
+		return graphicsFamily.has_value() && presentFamily.has_value();
 
 	}
 
@@ -52,6 +54,7 @@ private:
 
 	void InitVulkan();
 	bool CreateInstance();
+	void CreateSurface();
 	void SetupDebugMessenger();
 	void PickPhysicalDevice();
 	void CreateLogicalDevice();
@@ -77,12 +80,16 @@ private:
 private:
 
 	SDL_Window* window;
+
 	VkInstance instance;
+	VkSurfaceKHR surface;
+
 	VkDebugUtilsMessengerEXT debugMessenger;
+	
 	VkPhysicalDevice physicalDevice = VK_NULL_HANDLE;
 	VkDevice logicalDevice;
-	VkQueue graphicsQueue;
 
-	//VkSurfaceKHR surface;
+	VkQueue graphicsQueue;
+	VkQueue presentQueue;
 
 };
