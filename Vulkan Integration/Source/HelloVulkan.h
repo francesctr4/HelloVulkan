@@ -1,9 +1,12 @@
 #pragma once
 
 #include <iostream>
-#include <vector>
-#include <optional>
-#include <set>
+#include <vector> // Necessary for std::vector
+#include <optional> // Necessary for std::optional (C++17)
+#include <set> // Necessary for std::set
+#include <cstdint> // Necessary for uint32_t
+#include <limits> // Necessary for std::numeric_limits
+#include <algorithm> // Necessary for std::clamp
 
 #include "External/SDL2/include/SDL.h"
 #include "External/SDL2/include/SDL_vulkan.h"
@@ -14,6 +17,7 @@
 #pragma comment (lib, "Source/External/vulkan/lib/vulkan-1.lib")
 
 const std::vector<const char*> validationLayers = { "VK_LAYER_KHRONOS_validation" };
+const std::vector<const char*> deviceExtensions = { VK_KHR_SWAPCHAIN_EXTENSION_NAME };
 
 #ifdef _DEBUG
 const bool enableValidationLayers = true;
@@ -43,6 +47,14 @@ struct QueueFamilyIndices {
 
 };
 
+struct SwapChainSupportDetails {
+
+	std::vector<VkSurfaceFormatKHR> formats;
+	std::vector<VkPresentModeKHR> presentModes;
+	VkSurfaceCapabilitiesKHR capabilities;
+
+};
+
 class HelloVulkan {
 public:
 
@@ -58,9 +70,18 @@ private:
 	void SetupDebugMessenger();
 	void PickPhysicalDevice();
 	void CreateLogicalDevice();
+	void CreateSwapChain();
+	void CreateImageViews();
 
 	bool IsPhysicalDeviceSuitable(VkPhysicalDevice device);
+	bool CheckDeviceExtensionSupport(VkPhysicalDevice device);
+
 	QueueFamilyIndices FindQueueFamilies(VkPhysicalDevice device);
+
+	SwapChainSupportDetails QuerySwapChainSupport(VkPhysicalDevice device);
+	VkSurfaceFormatKHR ChooseSwapSurfaceFormat(const std::vector<VkSurfaceFormatKHR>& availableFormats);
+	VkPresentModeKHR ChooseSwapPresentMode(const std::vector<VkPresentModeKHR>& availablePresentModes);
+	VkExtent2D ChooseSwapExtent(const VkSurfaceCapabilitiesKHR& capabilities);
 
 	bool CheckValidationLayerSupport(const std::vector<const char*>& validationLayers);
 
@@ -91,5 +112,12 @@ private:
 
 	VkQueue graphicsQueue;
 	VkQueue presentQueue;
+
+	VkSwapchainKHR swapChain;
+	std::vector<VkImage> swapChainImages;
+	VkFormat swapChainImageFormat;
+	VkExtent2D swapChainExtent;
+
+	std::vector<VkImageView> swapChainImageViews;
 
 };
