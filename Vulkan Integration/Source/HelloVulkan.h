@@ -73,6 +73,7 @@ private:
 	void CreateLogicalDevice();
 	void CreateSwapChain();
 	void CreateImageViews();
+	void CreateRenderPass();
 	void CreateGraphicsPipeline();
 
 	static std::vector<char> ReadFile(const std::string& filename);
@@ -125,6 +126,8 @@ private:
 
 	std::vector<VkImageView> swapChainImageViews;
 
+	VkRenderPass renderPass;
 	VkPipelineLayout pipelineLayout;
+	VkPipeline graphicsPipeline;
 
 };
