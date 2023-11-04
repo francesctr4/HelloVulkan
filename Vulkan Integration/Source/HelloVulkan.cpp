@@ -48,6 +48,7 @@ void HelloVulkan::InitVulkan()
     CreateImageViews();
     CreateRenderPass();
     CreateGraphicsPipeline(); 
+    CreateFramebuffers();
 }
 
 bool HelloVulkan::CreateInstance()
@@ -653,6 +654,43 @@ void HelloVulkan::CreateGraphicsPipeline()
     vkDestroyShaderModule(logicalDevice, vertShaderModule, nullptr);
 }
 
+void HelloVulkan::CreateFramebuffers()
+{
+    swapChainFramebuffers.resize(swapChainImageViews.size());
+
+    for (size_t i = 0; i < swapChainImageViews.size(); i++) {
+        
+        VkImageView attachments[] = { swapChainImageViews[i] };
+       
+        VkFramebufferCreateInfo framebufferInfo{};
+
+        framebufferInfo.sType = VK_STRUCTURE_TYPE_FRAMEBUFFER_CREATE_INFO;
+
+        framebufferInfo.renderPass = renderPass;
+
+        framebufferInfo.attachmentCount = 1;
+        framebufferInfo.pAttachments = attachments;
+
+        framebufferInfo.width = swapChainExtent.width;
+        framebufferInfo.height = swapChainExtent.height;
+
+        framebufferInfo.layers = 1;
+        
+        if (vkCreateFramebuffer(logicalDevice, &framebufferInfo, nullptr, &swapChainFramebuffers[i]) != VK_SUCCESS) {
+
+            std::cout << "Failed to create framebuffer!" << std::endl;
+            
+        }
+        else {
+
+            std::cout << "Framebuffer " << ("%d", i + 1) << " created successfully." << std::endl;
+
+        }
+        
+    }
+
+}
+
 std::vector<char> HelloVulkan::ReadFile(const std::string& filename)
 {
     std::ifstream file(filename, std::ios::ate | std::ios::binary);
@@ -1053,6 +1091,12 @@ void HelloVulkan::Update()
 
 void HelloVulkan::CleanUp()
 {
+    for (auto framebuffer : swapChainFramebuffers) {
+
+        vkDestroyFramebuffer(logicalDevice, framebuffer, nullptr);
+        
+    }
+
     vkDestroyPipeline(logicalDevice, graphicsPipeline, nullptr);
     vkDestroyPipelineLayout(logicalDevice, pipelineLayout, nullptr);
     vkDestroyRenderPass(logicalDevice, renderPass, nullptr);
