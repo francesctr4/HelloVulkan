@@ -76,6 +76,11 @@ private:
 	void CreateRenderPass();
 	void CreateGraphicsPipeline();
 	void CreateFramebuffers();
+	void CreateCommandPool();
+	void CreateCommandBuffer();
+	void CreateSyncObjects();
+
+	void RecordCommandBuffer(VkCommandBuffer commandBuffer, uint32_t imageIndex);
 
 	static std::vector<char> ReadFile(const std::string& filename);
 	VkShaderModule CreateShaderModule(const std::vector<char>& code);
@@ -101,6 +106,8 @@ private:
 		void* pUserData);
 
 	void PopulateDebugMessengerCreateInfo(VkDebugUtilsMessengerCreateInfoEXT& createInfo);
+
+	void DrawFrame();
 
 	void Update();
 	void CleanUp();
@@ -132,5 +139,12 @@ private:
 	VkPipeline graphicsPipeline;
 
 	std::vector<VkFramebuffer> swapChainFramebuffers;
+
+	VkCommandPool commandPool;
+	VkCommandBuffer commandBuffer;
+
+	VkSemaphore imageAvailableSemaphore;
+	VkSemaphore renderFinishedSemaphore;
+	VkFence inFlightFence;
 
 };
