@@ -26,6 +26,10 @@
     <ClInclude Include="Source\Globals.h" />
     <ClInclude Include="Source\HelloVulkan.h" />
   </ItemGroup>
+  <ItemGroup>
+    <None Include="Output\Shaders\shader.frag" />
+    <None Include="Output\Shaders\shader.vert" />
+  </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>17.0</VCProjectVersion>
     <Keyword>Win32Proj</Keyword>
