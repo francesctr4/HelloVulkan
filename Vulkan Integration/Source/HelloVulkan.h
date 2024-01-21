@@ -1,21 +1,20 @@
 #pragma once
 
-#include <iostream>
-#include <vector> // Necessary for std::vector
-#include <optional> // Necessary for std::optional (C++17)
-#include <set> // Necessary for std::set
-#include <cstdint> // Necessary for uint32_t
-#include <limits> // Necessary for std::numeric_limits
-#include <algorithm> // Necessary for std::clamp
-#include <fstream> // Ncessary for reading files
+// Global Includes
+#include <iostream>		// Necessary for std::cout / std::cin
+#include <vector>		// Necessary for std::vector
+#include <optional>		// Necessary for std::optional (C++17)
+#include <set>			// Necessary for std::set
+#include <cstdint>		// Necessary for uint32_t
+#include <limits>		// Necessary for std::numeric_limits
+#include <algorithm>	// Necessary for std::clamp
+#include <fstream>		// Necessary for reading files
+#include <array>		// Necessary for std::array
 
-#include "External/SDL2/include/SDL.h"
-#include "External/SDL2/include/SDL_vulkan.h"
-#pragma comment( lib, "Source/External/SDL2/libx64/SDL2.lib" )
-#pragma comment( lib, "Source/External/SDL2/libx64/SDL2main.lib" )
-
-#include "External/vulkan/vulkan.h"
-#pragma comment (lib, "Source/External/vulkan/lib/vulkan-1.lib")
+// Library Includes
+#include "SDL2.h"
+#include "Vulkan.h"
+#include "MathGeoLib.h"
 
 const std::vector<const char*> validationLayers = { "VK_LAYER_KHRONOS_validation" };
 const std::vector<const char*> deviceExtensions = { VK_KHR_SWAPCHAIN_EXTENSION_NAME };
@@ -34,6 +33,55 @@ VkResult CreateDebugUtilsMessengerEXT(VkInstance instance, const
 void DestroyDebugUtilsMessengerEXT(VkInstance instance,
 	VkDebugUtilsMessengerEXT debugMessenger, const
 	VkAllocationCallbacks* pAllocator);
+
+struct Vertex {
+
+	float2 position;
+	float3 color;
+
+	static VkVertexInputBindingDescription getBindingDescription() {
+
+		VkVertexInputBindingDescription bindingDescription{};
+		
+		bindingDescription.binding = 0;
+		bindingDescription.stride = sizeof(Vertex);
+		bindingDescription.inputRate = VK_VERTEX_INPUT_RATE_VERTEX;
+
+		return bindingDescription;
+
+	}
+
+	static std::array<VkVertexInputAttributeDescription, 2> getAttributeDescriptions() {
+
+		std::array<VkVertexInputAttributeDescription, 2> attributeDescriptions{};
+		
+		// Position
+
+		attributeDescriptions[0].binding = 0;
+		attributeDescriptions[0].location = 0;
+		attributeDescriptions[0].format = VK_FORMAT_R32G32_SFLOAT;
+		attributeDescriptions[0].offset = offsetof(Vertex, position);
+
+		// Color
+
+		attributeDescriptions[1].binding = 0;
+		attributeDescriptions[1].location = 1;
+		attributeDescriptions[1].format = VK_FORMAT_R32G32B32_SFLOAT;
+		attributeDescriptions[1].offset = offsetof(Vertex, color);
+
+		return attributeDescriptions;
+		
+	}
+
+};
+
+//const std::vector<Vertex> vertices = {
+//
+//	{{0.0f, -0.5f}, {1.0f, 0.0f, 0.0f}},
+//	{{0.5f, 0.5f}, {0.0f, 1.0f, 0.0f}},
+//	{{-0.5f, 0.5f}, {0.0f, 0.0f, 1.0f}}
+//
+//};
 
 struct QueueFamilyIndices {
 
