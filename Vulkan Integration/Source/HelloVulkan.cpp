@@ -745,11 +745,52 @@ void HelloVulkan::CreateVertexBuffer()
 
     bufferInfo.size = sizeof(vertices[0]) * vertices.size();
     bufferInfo.usage = VK_BUFFER_USAGE_VERTEX_BUFFER_BIT;
-
     bufferInfo.sharingMode = VK_SHARING_MODE_EXCLUSIVE;
+    bufferInfo.flags = 0;
 
+    if (vkCreateBuffer(logicalDevice, &bufferInfo, nullptr, &vertexBuffer) != VK_SUCCESS) {
+    
+        std::cout << "Failed to create Vertex Buffer!" << std::endl;
 
+    }
+    else {
 
+        std::cout << "Vertex Buffer created successfully." << std::endl;
+
+    }
+
+    VkMemoryRequirements memRequirements;
+
+    vkGetBufferMemoryRequirements(logicalDevice, vertexBuffer, &memRequirements);
+
+    VkMemoryAllocateInfo allocInfo{};
+    allocInfo.sType = VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO;
+
+    allocInfo.allocationSize = memRequirements.size;
+    allocInfo.memoryTypeIndex = FindMemoryType(memRequirements.memoryTypeBits, 
+                                VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | 
+                                VK_MEMORY_PROPERTY_HOST_COHERENT_BIT);
+
+    if (vkAllocateMemory(logicalDevice, &allocInfo, nullptr, &vertexBufferMemory) != VK_SUCCESS) {
+        
+        std::cout << "Failed to allocate Vertex Buffer Memory!" << std::endl;
+
+    }
+    else {
+
+        std::cout << "Vertex Buffer Memory allocated successfully." << std::endl;
+
+    }
+
+    vkBindBufferMemory(logicalDevice, vertexBuffer, vertexBufferMemory, 0);
+
+    void* VBO;
+    vkMapMemory(logicalDevice, vertexBufferMemory, 0, bufferInfo.size, 0, &VBO);
+
+    memcpy(VBO, vertices.data(), (size_t)bufferInfo.size);
+
+    vkUnmapMemory(logicalDevice, vertexBufferMemory);
+    
 }
 
 void HelloVulkan::CreateCommandBuffers()
@@ -842,6 +883,26 @@ void HelloVulkan::CleanUpSwapChain()
     vkDestroySwapchainKHR(logicalDevice, swapChain, nullptr);
 }
 
+uint32_t HelloVulkan::FindMemoryType(uint32_t typeFilter, VkMemoryPropertyFlags properties)
+{
+    VkPhysicalDeviceMemoryProperties memProperties;
+
+    vkGetPhysicalDeviceMemoryProperties(physicalDevice, &memProperties);
+
+    for (uint32_t i = 0; i < memProperties.memoryTypeCount; i++) {
+
+        if ((typeFilter & (1 << i)) && (memProperties.memoryTypes[i].propertyFlags & properties) == properties) {
+
+            return i;
+            
+        }
+        
+    }
+    
+    throw std::runtime_error("Failed to find suitable memory type!");
+
+}
+
 void HelloVulkan::RecordCommandBuffer(VkCommandBuffer commandBuffer, uint32_t imageIndex)
 {
     VkCommandBufferBeginInfo beginInfo{};
@@ -891,7 +952,12 @@ void HelloVulkan::RecordCommandBuffer(VkCommandBuffer commandBuffer, uint32_t im
 
     vkCmdSetScissor(commandBuffer, 0, 1, &scissor);
 
-    vkCmdDraw(commandBuffer, 3, 1, 0, 0);
+    VkBuffer vertexBuffers[] = { vertexBuffer };
+    VkDeviceSize offsets[] = { 0 };
+
+    vkCmdBindVertexBuffers(commandBuffer, 0, 1, vertexBuffers, offsets);
+    
+    vkCmdDraw(commandBuffer, static_cast<uint32_t>(vertices.size()), 1, 0, 0);
 
     vkCmdEndRenderPass(commandBuffer);
 
@@ -1413,6 +1479,9 @@ void HelloVulkan::Update()
 void HelloVulkan::CleanUp()
 {
     CleanUpSwapChain();
+
+    vkDestroyBuffer(logicalDevice, vertexBuffer, nullptr);
+    vkFreeMemory(logicalDevice, vertexBufferMemory, nullptr);
 
     vkDestroyPipeline(logicalDevice, graphicsPipeline, nullptr);
     vkDestroyPipelineLayout(logicalDevice, pipelineLayout, nullptr);

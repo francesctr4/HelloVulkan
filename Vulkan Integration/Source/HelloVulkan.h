@@ -100,7 +100,7 @@ struct Vertex {
 
 const std::vector<Vertex> vertices = {
 
-	{{0.0f, -0.5f}, {1.0f, 0.0f, 0.0f}},
+	{{0.0f, -0.5f}, {1.0f, 1.0f, 1.0f}},
 	{{0.5f, 0.5f}, {0.0f, 1.0f, 0.0f}},
 	{{-0.5f, 0.5f}, {0.0f, 0.0f, 1.0f}}
 
@@ -133,6 +133,8 @@ private:
 
 	void RecreateSwapChain();
 	void CleanUpSwapChain();
+
+	uint32_t FindMemoryType(uint32_t typeFilter, VkMemoryPropertyFlags properties);
 
 	void RecordCommandBuffer(VkCommandBuffer commandBuffer, uint32_t imageIndex);
 
@@ -203,5 +205,8 @@ private:
 	uint32_t currentFrame = 0;
 
 	bool framebufferResized = false;
+
+	VkBuffer vertexBuffer;
+	VkDeviceMemory vertexBufferMemory;
 
 };
