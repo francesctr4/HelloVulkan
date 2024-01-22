@@ -740,56 +740,32 @@ void HelloVulkan::CreateCommandPool()
 
 void HelloVulkan::CreateVertexBuffer()
 {
-    VkBufferCreateInfo bufferInfo{};
-    bufferInfo.sType = VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO;
-
-    bufferInfo.size = sizeof(vertices[0]) * vertices.size();
-    bufferInfo.usage = VK_BUFFER_USAGE_VERTEX_BUFFER_BIT;
-    bufferInfo.sharingMode = VK_SHARING_MODE_EXCLUSIVE;
-    bufferInfo.flags = 0;
-
-    if (vkCreateBuffer(logicalDevice, &bufferInfo, nullptr, &vertexBuffer) != VK_SUCCESS) {
+    VkDeviceSize bufferSize = sizeof(vertices[0]) * vertices.size();
     
-        std::cout << "Failed to create Vertex Buffer!" << std::endl;
+    VkBuffer stagingBuffer;
+    VkDeviceMemory stagingBufferMemory;
 
-    }
-    else {
-
-        std::cout << "Vertex Buffer created successfully." << std::endl;
-
-    }
-
-    VkMemoryRequirements memRequirements;
-
-    vkGetBufferMemoryRequirements(logicalDevice, vertexBuffer, &memRequirements);
-
-    VkMemoryAllocateInfo allocInfo{};
-    allocInfo.sType = VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO;
-
-    allocInfo.allocationSize = memRequirements.size;
-    allocInfo.memoryTypeIndex = FindMemoryType(memRequirements.memoryTypeBits, 
-                                VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | 
-                                VK_MEMORY_PROPERTY_HOST_COHERENT_BIT);
-
-    if (vkAllocateMemory(logicalDevice, &allocInfo, nullptr, &vertexBufferMemory) != VK_SUCCESS) {
-        
-        std::cout << "Failed to allocate Vertex Buffer Memory!" << std::endl;
-
-    }
-    else {
-
-        std::cout << "Vertex Buffer Memory allocated successfully." << std::endl;
-
-    }
-
-    vkBindBufferMemory(logicalDevice, vertexBuffer, vertexBufferMemory, 0);
+    CreateBuffer(bufferSize, 
+                 VK_BUFFER_USAGE_TRANSFER_SRC_BIT,
+                 VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT, 
+                 stagingBuffer,
+                 stagingBufferMemory);
 
     void* VBO;
-    vkMapMemory(logicalDevice, vertexBufferMemory, 0, bufferInfo.size, 0, &VBO);
+    vkMapMemory(logicalDevice, stagingBufferMemory, 0, bufferSize, 0, &VBO);
+    memcpy(VBO, vertices.data(), (size_t)bufferSize);
+    vkUnmapMemory(logicalDevice, stagingBufferMemory);
+    
+    CreateBuffer(bufferSize, 
+                 VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_VERTEX_BUFFER_BIT,
+                 VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, 
+                 vertexBuffer,
+                 vertexBufferMemory);
 
-    memcpy(VBO, vertices.data(), (size_t)bufferInfo.size);
+    CopyBuffer(stagingBuffer, vertexBuffer, bufferSize);
 
-    vkUnmapMemory(logicalDevice, vertexBufferMemory);
+    vkDestroyBuffer(logicalDevice, stagingBuffer, nullptr);
+    vkFreeMemory(logicalDevice, stagingBufferMemory, nullptr);
     
 }
 
@@ -881,6 +857,94 @@ void HelloVulkan::CleanUpSwapChain()
     }
 
     vkDestroySwapchainKHR(logicalDevice, swapChain, nullptr);
+}
+
+void HelloVulkan::CopyBuffer(VkBuffer srcBuffer, VkBuffer dstBuffer, VkDeviceSize size)
+{
+    VkCommandBufferAllocateInfo allocInfo{};
+    allocInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
+ 
+    allocInfo.level = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
+    allocInfo.commandPool = commandPool;
+    allocInfo.commandBufferCount = 1;
+    
+    VkCommandBuffer commandBuffer;
+
+    vkAllocateCommandBuffers(logicalDevice, &allocInfo, &commandBuffer);
+
+    VkCommandBufferBeginInfo beginInfo{};
+    beginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
+    beginInfo.flags = VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT;
+    
+    vkBeginCommandBuffer(commandBuffer, &beginInfo);
+
+    VkBufferCopy copyRegion{};
+    copyRegion.srcOffset = 0;
+    copyRegion.dstOffset = 0; 
+    copyRegion.size = size;
+
+    vkCmdCopyBuffer(commandBuffer, srcBuffer, dstBuffer, 1, &copyRegion);
+
+    vkEndCommandBuffer(commandBuffer);
+
+    VkSubmitInfo submitInfo{};
+    submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
+
+    submitInfo.commandBufferCount = 1;
+    submitInfo.pCommandBuffers = &commandBuffer;
+    
+    vkQueueSubmit(graphicsQueue, 1, &submitInfo, VK_NULL_HANDLE);
+
+    vkQueueWaitIdle(graphicsQueue);
+
+    vkFreeCommandBuffers(logicalDevice, commandPool, 1, &commandBuffer);
+
+}
+
+void HelloVulkan::CreateBuffer(VkDeviceSize size, VkBufferUsageFlags usage, VkMemoryPropertyFlags properties, VkBuffer& buffer, VkDeviceMemory& bufferMemory)
+{
+    VkBufferCreateInfo bufferInfo{};
+    bufferInfo.sType = VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO;
+
+    bufferInfo.size = size;
+    bufferInfo.usage = usage;
+    bufferInfo.sharingMode = VK_SHARING_MODE_EXCLUSIVE;
+    bufferInfo.flags = 0;
+
+    if (vkCreateBuffer(logicalDevice, &bufferInfo, nullptr, &buffer) != VK_SUCCESS) {
+
+        std::cout << "Failed to create Buffer!" << std::endl;
+
+    }
+    else {
+
+        std::cout << "Buffer created successfully." << std::endl;
+
+    }
+
+    VkMemoryRequirements memRequirements;
+
+    vkGetBufferMemoryRequirements(logicalDevice, buffer, &memRequirements);
+
+    VkMemoryAllocateInfo allocInfo{};
+    allocInfo.sType = VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO;
+
+    allocInfo.allocationSize = memRequirements.size;
+    allocInfo.memoryTypeIndex = FindMemoryType(memRequirements.memoryTypeBits, properties);
+
+    if (vkAllocateMemory(logicalDevice, &allocInfo, nullptr, &bufferMemory) != VK_SUCCESS) {
+
+        std::cout << "Failed to allocate Buffer Memory!" << std::endl;
+
+    }
+    else {
+
+        std::cout << "Buffer Memory allocated successfully." << std::endl;
+
+    }
+
+    vkBindBufferMemory(logicalDevice, buffer, bufferMemory, 0);
+    
 }
 
 uint32_t HelloVulkan::FindMemoryType(uint32_t typeFilter, VkMemoryPropertyFlags properties)

@@ -134,6 +134,12 @@ private:
 	void RecreateSwapChain();
 	void CleanUpSwapChain();
 
+	void CopyBuffer(VkBuffer srcBuffer, VkBuffer dstBuffer, VkDeviceSize size);
+
+	void CreateBuffer(VkDeviceSize size, VkBufferUsageFlags usage, 
+	                  VkMemoryPropertyFlags properties, VkBuffer& buffer, 
+					  VkDeviceMemory& bufferMemory);
+
 	uint32_t FindMemoryType(uint32_t typeFilter, VkMemoryPropertyFlags properties);
 
 	void RecordCommandBuffer(VkCommandBuffer commandBuffer, uint32_t imageIndex);
