@@ -52,6 +52,7 @@ void HelloVulkan::InitVulkan()
     CreateGraphicsPipeline(); 
     CreateFramebuffers();
     CreateCommandPool();
+    CreateVertexBuffer();
     CreateCommandBuffers();
     CreateSyncObjects();
 }
@@ -734,6 +735,20 @@ void HelloVulkan::CreateCommandPool()
         std::cout << "Command pool created succesfully." << std::endl;
 
     }
+
+}
+
+void HelloVulkan::CreateVertexBuffer()
+{
+    VkBufferCreateInfo bufferInfo{};
+    bufferInfo.sType = VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO;
+
+    bufferInfo.size = sizeof(vertices[0]) * vertices.size();
+    bufferInfo.usage = VK_BUFFER_USAGE_VERTEX_BUFFER_BIT;
+
+    bufferInfo.sharingMode = VK_SHARING_MODE_EXCLUSIVE;
+
+
 
 }
 
