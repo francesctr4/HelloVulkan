@@ -7,6 +7,12 @@ const char gEngineName[] = "VulkanDemoEngine";
 int gWindowWidth = 800;
 int gWindowHeight = 600;
 
+// Global Math Operations
+
+#define DEGTORAD 0.0174532925199432957f
+#define RADTODEG 57.295779513082320876f
+#define PI 3.14159265358979323846264338327950288
+
 // Vulkan Settings
 
 //VkPresentModeKHR                gPresentationMode = VK_PRESENT_MODE_FIFO_RELAXED_KHR;

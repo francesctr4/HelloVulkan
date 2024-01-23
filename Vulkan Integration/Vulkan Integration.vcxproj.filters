@@ -37,6 +37,9 @@
     <ClInclude Include="Source\Vulkan.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="Source\glmath.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="Output\Shaders\shader.frag">

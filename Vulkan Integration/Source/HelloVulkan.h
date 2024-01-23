@@ -10,11 +10,13 @@
 #include <algorithm>	// Necessary for std::clamp
 #include <fstream>		// Necessary for reading files
 #include <array>		// Necessary for std::array
+#include <chrono>
 
 // Library Includes
 #include "SDL2.h"
 #include "Vulkan.h"
 #include "MathGeoLib.h"
+#include "glmath.h"
 
 const int MAX_FRAMES_IN_FLIGHT = 2;
 
@@ -59,8 +61,8 @@ struct SwapChainSupportDetails {
 
 struct Vertex {
 
-	float2 position;
-	float3 color;
+	glm::vec2 position;
+	glm::vec3 color;
 
 	static VkVertexInputBindingDescription getBindingDescription() {
 
@@ -98,6 +100,14 @@ struct Vertex {
 
 };
 
+struct UniformBufferObject {
+	
+	alignas(16) glm::mat4 model;
+	alignas(16) glm::mat4 view;
+	alignas(16) glm::mat4 projection;
+	
+};
+
 class HelloVulkan {
 public:
 
@@ -116,16 +126,22 @@ private:
 	void CreateSwapChain();
 	void CreateImageViews();
 	void CreateRenderPass();
+	void CreateDescriptorSetLayout();
 	void CreateGraphicsPipeline();
 	void CreateFramebuffers();
 	void CreateCommandPool();
 	void CreateVertexBuffer();
 	void CreateIndexBuffer();
+	void CreateUniformBuffers();
+	void CreateDescriptorPool();
+	void CreateDescriptorSets();
 	void CreateCommandBuffers();
 	void CreateSyncObjects();
 
 	void RecreateSwapChain();
 	void CleanUpSwapChain();
+
+	void UpdateUniformBuffer(uint32_t currentImage);
 
 	void CopyBuffer(VkBuffer srcBuffer, VkBuffer dstBuffer, VkDeviceSize size);
 
@@ -190,6 +206,7 @@ private:
 	std::vector<VkImageView> swapChainImageViews;
 
 	VkRenderPass renderPass;
+	VkDescriptorSetLayout descriptorSetLayout;
 	VkPipelineLayout pipelineLayout;
 	VkPipeline graphicsPipeline;
 
@@ -210,5 +227,12 @@ private:
 
 	VkBuffer indexBuffer;
 	VkDeviceMemory indexBufferMemory;
+
+	std::vector<VkBuffer> uniformBuffers;
+	std::vector<VkDeviceMemory> uniformBuffersMemory;
+	std::vector<void*> uniformBuffersMapped;
+
+	VkDescriptorPool descriptorPool;
+	std::vector<VkDescriptorSet> descriptorSets;
 
 };
