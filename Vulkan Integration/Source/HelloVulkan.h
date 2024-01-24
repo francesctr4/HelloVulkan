@@ -10,13 +10,16 @@
 #include <algorithm>	// Necessary for std::clamp
 #include <fstream>		// Necessary for reading files
 #include <array>		// Necessary for std::array
-#include <chrono>
+#include <chrono>		// Necessary for std::chrono (time management)
 
 // Library Includes
 #include "SDL2.h"
 #include "Vulkan.h"
 #include "MathGeoLib.h"
 #include "glmath.h"
+
+#define SHADERS_DIRECTORY "Assets/Shaders/"
+#define TEXTURES_DIRECTORY "Assets/Textures/"
 
 const int MAX_FRAMES_IN_FLIGHT = 2;
 
@@ -130,6 +133,9 @@ private:
 	void CreateGraphicsPipeline();
 	void CreateFramebuffers();
 	void CreateCommandPool();
+	void CreateTextureImage();
+	void CreateTextureImageView();
+	void CreateTextureSampler();
 	void CreateVertexBuffer();
 	void CreateIndexBuffer();
 	void CreateUniformBuffers();
@@ -140,6 +146,20 @@ private:
 
 	void RecreateSwapChain();
 	void CleanUpSwapChain();
+
+	VkImageView CreateImageView(VkImage image, VkFormat format);
+
+	void CopyBufferToImage(VkBuffer buffer, VkImage image, uint32_t width, uint32_t height);
+
+	void TransitionImageLayout(VkImage image, VkFormat format, VkImageLayout oldLayout, VkImageLayout newLayout);
+
+	VkCommandBuffer BeginSingleTimeCommands();
+	void EndSingleTimeCommands(VkCommandBuffer commandBuffer);
+
+	void CreateImage(uint32_t width, uint32_t height, VkFormat format,
+					 VkImageTiling tiling, VkImageUsageFlags usage,
+					 VkMemoryPropertyFlags properties, VkImage& image,
+					 VkDeviceMemory& imageMemory);
 
 	void UpdateUniformBuffer(uint32_t currentImage);
 
@@ -235,4 +255,9 @@ private:
 	VkDescriptorPool descriptorPool;
 	std::vector<VkDescriptorSet> descriptorSets;
 
+	VkImage textureImage;
+	VkDeviceMemory textureImageMemory;
+
+	VkImageView textureImageView;
+	VkSampler textureSampler;
 };

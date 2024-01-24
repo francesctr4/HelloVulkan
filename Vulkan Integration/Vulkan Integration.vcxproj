@@ -31,8 +31,8 @@
     <ClInclude Include="Source\Vulkan.h" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="Output\Shaders\shader.frag" />
-    <None Include="Output\Shaders\shader.vert" />
+    <None Include="Output\Assets\Shaders\shader.frag" />
+    <None Include="Output\Assets\Shaders\shader.vert" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>17.0</VCProjectVersion>
