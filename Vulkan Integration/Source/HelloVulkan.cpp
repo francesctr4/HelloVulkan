@@ -1202,9 +1202,9 @@ void HelloVulkan::RecreateSwapChain()
     SDL_Vulkan_GetDrawableSize(window, &width, &height);
 
     while (width == 0 || height == 0) {
-
+        
         SDL_Vulkan_GetDrawableSize(window, &width, &height);
-        SDL_WaitEvent(nullptr);
+        SDL_PumpEvents();
 
     }
 

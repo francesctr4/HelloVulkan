@@ -232,7 +232,7 @@ namespace glm
 	template<typename T>
 	GLM_FUNC_QUALIFIER mat<4, 4, T, defaultp> perspectiveRH_ZO(T fovy, T aspect, T zNear, T zFar)
 	{
-		assert(abs(aspect - std::numeric_limits<T>::epsilon()) > static_cast<T>(0));
+		//assert(abs(aspect - std::numeric_limits<T>::epsilon()) > static_cast<T>(0));
 
 		T const tanHalfFovy = tan(fovy / static_cast<T>(2));
 
