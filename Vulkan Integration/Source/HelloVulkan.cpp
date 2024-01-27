@@ -979,8 +979,6 @@ void HelloVulkan::LoadModel()
             };
           
             vertex.color = { 1.0f, 1.0f, 1.0f };
-            
-            vertices.push_back(vertex);
 
             if (uniqueVertices.count(vertex) == 0) {
 
