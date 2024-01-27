@@ -62,7 +62,9 @@ void HelloVulkan::InitVulkan()
     CreateTextureImage();
     CreateTextureImageView();
     CreateTextureSampler();
+
     LoadModel();
+
     CreateVertexBuffer();
     CreateIndexBuffer();
     CreateUniformBuffers();
@@ -942,7 +944,7 @@ void HelloVulkan::CreateTextureSampler()
 
 void HelloVulkan::LoadModel()
 {
-    tinyobj::attrib_t attrib;
+    /* tinyobj::attrib_t attrib;
 
     std::vector<tinyobj::shape_t> shapes;
     std::vector<tinyobj::material_t> materials;
@@ -989,6 +991,91 @@ void HelloVulkan::LoadModel()
             
             indices.push_back(uniqueVertices[vertex]);
             
+        }
+
+    } */
+
+    const aiScene* scene = aiImportFile(modelPath.c_str(), ASSIMP_LOAD_FLAGS);
+
+    if (scene != nullptr && scene->HasMeshes())
+    {
+        ProcessNode(scene->mRootNode, scene);
+
+        aiReleaseImport(scene);
+    }
+    else
+    {
+        throw std::runtime_error("Failed to load 3D Model!");
+    }
+
+}
+
+void HelloVulkan::ProcessNode(aiNode* node, const aiScene* scene)
+{
+    for (uint32_t i = 0; i < node->mNumMeshes; ++i) {
+
+        aiMesh* mesh = scene->mMeshes[node->mMeshes[i]];
+
+        ProcessMesh(mesh, scene);
+
+    }
+
+    for (uint32_t i = 0; i < node->mNumChildren; ++i) {
+
+        ProcessNode(node->mChildren[i], scene);
+
+    }
+
+}
+
+void HelloVulkan::ProcessMesh(aiMesh* mesh, const aiScene* scene)
+{
+    for (uint32_t i = 0; i < mesh->mNumVertices; ++i) {
+
+        Vertex vertex;
+
+        vertex.position = {
+
+            mesh->mVertices[i].x,
+            mesh->mVertices[i].y,
+            mesh->mVertices[i].z
+
+        };
+
+        if (mesh->HasTextureCoords(0)) {
+
+            vertex.texCoord = {
+
+                mesh->mTextureCoords[0][i].x,
+                mesh->mTextureCoords[0][i].y
+
+            };
+
+        }
+        else {
+
+            vertex.texCoord = { 0.0f, 0.0f };
+
+        }
+
+        vertex.color = { 1.0f, 1.0f, 1.0f };
+
+        vertices.push_back(vertex);
+
+    }
+
+    if (mesh->HasFaces()) {
+
+        for (uint32_t i = 0; i < mesh->mNumFaces; ++i) {
+
+            aiFace face = mesh->mFaces[i];
+
+            for (uint32_t j = 0; j < face.mNumIndices; ++j) {
+
+                indices.push_back(face.mIndices[j]);
+
+            }
+
         }
 
     }

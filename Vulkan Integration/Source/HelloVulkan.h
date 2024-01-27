@@ -18,6 +18,7 @@
 #include "Vulkan.h"
 #include "MathGeoLib.h"
 #include "glmath.h"
+#include "Assimp.h"
 
 const int MAX_FRAMES_IN_FLIGHT = 2;
 
@@ -149,7 +150,11 @@ private:
 	void CreateTextureImage();
 	void CreateTextureImageView();
 	void CreateTextureSampler();
+
 	void LoadModel();
+	void ProcessNode(aiNode* node, const aiScene* scene);
+	void ProcessMesh(aiMesh* mesh, const aiScene* scene);
+
 	void CreateVertexBuffer();
 	void CreateIndexBuffer();
 	void CreateUniformBuffers();

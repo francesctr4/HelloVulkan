@@ -40,6 +40,9 @@
     <ClInclude Include="Source\glmath.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="Source\Assimp.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="Output\Assets\Shaders\shader.frag">
