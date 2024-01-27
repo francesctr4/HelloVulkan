@@ -1,25 +1,23 @@
 #pragma once
 
 // Global Includes
-#include <iostream>		// Necessary for std::cout / std::cin
-#include <vector>		// Necessary for std::vector
-#include <optional>		// Necessary for std::optional (C++17)
-#include <set>			// Necessary for std::set
-#include <cstdint>		// Necessary for uint32_t
-#include <limits>		// Necessary for std::numeric_limits
-#include <algorithm>	// Necessary for std::clamp
-#include <fstream>		// Necessary for reading files
-#include <array>		// Necessary for std::array
-#include <chrono>		// Necessary for std::chrono (time management)
+#include <iostream>			// Necessary for std::cout / std::cin
+#include <vector>			// Necessary for std::vector
+#include <optional>			// Necessary for std::optional (C++17)
+#include <set>				// Necessary for std::set
+#include <cstdint>			// Necessary for uint32_t
+#include <limits>			// Necessary for std::numeric_limits
+#include <algorithm>		// Necessary for std::clamp
+#include <fstream>			// Necessary for reading files
+#include <array>			// Necessary for std::array
+#include <chrono>			// Necessary for std::chrono (time management)
+#include <unordered_map>	// Necessary for std::unordered_map
 
 // Library Includes
 #include "SDL2.h"
 #include "Vulkan.h"
 #include "MathGeoLib.h"
 #include "glmath.h"
-
-#define SHADERS_DIRECTORY "Assets/Shaders/"
-#define TEXTURES_DIRECTORY "Assets/Textures/"
 
 const int MAX_FRAMES_IN_FLIGHT = 2;
 
@@ -109,6 +107,12 @@ struct Vertex {
 
 	}
 
+	bool operator==(const Vertex& other) const {
+		
+		return position == other.position && color == other.color && texCoord == other.texCoord;
+
+	}
+
 };
 
 struct UniformBufferObject {
@@ -145,6 +149,7 @@ private:
 	void CreateTextureImage();
 	void CreateTextureImageView();
 	void CreateTextureSampler();
+	void LoadModel();
 	void CreateVertexBuffer();
 	void CreateIndexBuffer();
 	void CreateUniformBuffers();
@@ -259,6 +264,10 @@ private:
 
 	bool framebufferResized = false;
 
+	// 3D Model Loading
+	std::vector<Vertex> vertices;
+	std::vector<uint32_t> indices;
+
 	VkBuffer vertexBuffer;
 	VkDeviceMemory vertexBufferMemory;
 
@@ -282,3 +291,19 @@ private:
 	VkImageView depthImageView;
 
 };
+
+namespace std {
+
+	template<> struct hash<Vertex> {
+
+		size_t operator()(Vertex const& vertex) const {
+			
+			return ((hash<glm::vec3>()(vertex.position) ^ 
+				   (hash<glm::vec3>()(vertex.color) << 1)) >> 1) ^ 
+				   (hash<glm::vec2>()(vertex.texCoord) << 1);
+			
+		}
+
+	};
+
+}
