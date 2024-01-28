@@ -146,6 +146,7 @@ private:
 	void CreateGraphicsPipeline();
 	void CreateFramebuffers();
 	void CreateCommandPool();
+	void CreateColorResources();
 	void CreateDepthResources();
 	void CreateTextureImage();
 	void CreateTextureImageView();
@@ -161,6 +162,8 @@ private:
 
 	void RecreateSwapChain();
 	void CleanUpSwapChain();
+
+	VkSampleCountFlagBits GetMaxUsableSampleCount();
 
 	void GenerateMipmaps(VkImage image, VkFormat imageFormat, int32_t texWidth, int32_t texHeight, uint32_t mipLevels);
 
@@ -185,10 +188,10 @@ private:
 	void EndSingleTimeCommands(VkCommandBuffer commandBuffer);
 
 	void CreateImage(uint32_t width, uint32_t height, 
-				     uint32_t mipLevels, VkFormat format,
-					 VkImageTiling tiling, VkImageUsageFlags usage,
-					 VkMemoryPropertyFlags properties, VkImage& image,
-					 VkDeviceMemory& imageMemory);
+				     uint32_t mipLevels, VkSampleCountFlagBits numSamples, 
+					 VkFormat format, VkImageTiling tiling, 
+					 VkImageUsageFlags usage, VkMemoryPropertyFlags properties, 
+				     VkImage& image, VkDeviceMemory& imageMemory);
 
 	void UpdateUniformBuffer(uint32_t currentImage);
 
@@ -271,10 +274,6 @@ private:
 
 	bool framebufferResized = false;
 
-	// 3D Model Loading
-	std::vector<Vertex> vertices;
-	std::vector<uint32_t> indices;
-
 	VkBuffer vertexBuffer;
 	VkDeviceMemory vertexBufferMemory;
 
@@ -288,7 +287,6 @@ private:
 	VkDescriptorPool descriptorPool;
 	std::vector<VkDescriptorSet> descriptorSets;
 
-	uint32_t mipLevels;
 	VkImage textureImage;
 	VkDeviceMemory textureImageMemory;
 	VkImageView textureImageView;
@@ -297,6 +295,18 @@ private:
 	VkImage depthImage;
 	VkDeviceMemory depthImageMemory;
 	VkImageView depthImageView;
+
+	// 3D Model Loading
+	std::vector<Vertex> vertices;
+	std::vector<uint32_t> indices;
+
+	uint32_t mipLevels;
+
+	VkSampleCountFlagBits msaaSamples = VK_SAMPLE_COUNT_1_BIT;
+
+	VkImage colorImage;
+	VkDeviceMemory colorImageMemory;
+	VkImageView colorImageView;
 
 };
 
