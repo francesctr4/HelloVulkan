@@ -163,6 +163,13 @@ private:
 	void RecreateSwapChain();
 	void CleanUpSwapChain();
 
+	void DrawFrame();
+
+	void Update();
+	void CleanUp();
+
+	// --------------- Helper Functions ---------------
+
 	VkSampleCountFlagBits GetMaxUsableSampleCount();
 
 	void GenerateMipmaps(VkImage image, VkFormat imageFormat, int32_t texWidth, int32_t texHeight, uint32_t mipLevels);
@@ -230,11 +237,6 @@ private:
 
 	void PopulateDebugMessengerCreateInfo(VkDebugUtilsMessengerCreateInfoEXT& createInfo);
 
-	void DrawFrame();
-
-	void Update();
-	void CleanUp();
-
 private:
 
 	SDL_Window* window;
@@ -274,11 +276,15 @@ private:
 
 	bool framebufferResized = false;
 
+	// --------------- Vertex Buffers ---------------
+
 	VkBuffer vertexBuffer;
 	VkDeviceMemory vertexBufferMemory;
 
 	VkBuffer indexBuffer;
 	VkDeviceMemory indexBufferMemory;
+
+	// --------------- Uniform Buffers ---------------
 
 	std::vector<VkBuffer> uniformBuffers;
 	std::vector<VkDeviceMemory> uniformBuffersMemory;
@@ -287,20 +293,29 @@ private:
 	VkDescriptorPool descriptorPool;
 	std::vector<VkDescriptorSet> descriptorSets;
 
+	// --------------- Texture Mapping ---------------
+
 	VkImage textureImage;
 	VkDeviceMemory textureImageMemory;
 	VkImageView textureImageView;
 	VkSampler textureSampler;
 
+	// --------------- Depth Buffering --------------- 
+
 	VkImage depthImage;
 	VkDeviceMemory depthImageMemory;
 	VkImageView depthImageView;
 
-	// 3D Model Loading
+	// --------------- Loading Models --------------- 
+
 	std::vector<Vertex> vertices;
 	std::vector<uint32_t> indices;
 
+	// --------------- Generating Mipmaps --------------- 
+
 	uint32_t mipLevels;
+
+	// --------------- Multisampling --------------- 
 
 	VkSampleCountFlagBits msaaSamples = VK_SAMPLE_COUNT_1_BIT;
 
