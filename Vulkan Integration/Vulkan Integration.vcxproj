@@ -27,7 +27,6 @@
     <ClInclude Include="Source\glmath.h" />
     <ClInclude Include="Source\Globals.h" />
     <ClInclude Include="Source\HelloVulkan.h" />
-    <ClInclude Include="Source\MathGeoLib.h" />
     <ClInclude Include="Source\SDL2.h" />
     <ClInclude Include="Source\Vulkan.h" />
   </ItemGroup>

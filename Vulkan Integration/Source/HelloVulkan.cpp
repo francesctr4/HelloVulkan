@@ -4,14 +4,14 @@
 #define STB_IMAGE_IMPLEMENTATION
 #include "External/stb_image/stb_image.h"
 
-#define TINYOBJLOADER_IMPLEMENTATION
-#include "External/tiny_obj_loader/tiny_obj_loader.h"
-
 void HelloVulkan::Run()
 {
     InitSDLWindow();
+
     InitVulkan();
+
     Update();
+
     CleanUp();
 }
 
@@ -47,28 +47,40 @@ bool HelloVulkan::InitSDLWindow()
 void HelloVulkan::InitVulkan()
 {
     CreateInstance();
+
     SetupDebugMessenger();
+
     CreateSurface();
+
     PickPhysicalDevice();
     CreateLogicalDevice();
+
     CreateSwapChain();
     CreateImageViews();
     CreateRenderPass();
     CreateDescriptorSetLayout();
     CreateGraphicsPipeline(); 
+
     CreateColorResources();
     CreateDepthResources();
+
     CreateFramebuffers();
+
     CreateCommandPool();
+
     CreateTextureImage();
     CreateTextureImageView();
     CreateTextureSampler();
+
     LoadModel();
+
     CreateVertexBuffer();
     CreateIndexBuffer();
     CreateUniformBuffers();
+
     CreateDescriptorPool();
     CreateDescriptorSets();
+
     CreateCommandBuffers();
     CreateSyncObjects();
 }
@@ -576,7 +588,7 @@ void HelloVulkan::CreateGraphicsPipeline()
     inputAssembly.topology = VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST;
     inputAssembly.primitiveRestartEnable = VK_FALSE;
 
-    // Viewports and scissors
+    // Viewports and scissors ( Done dynamically later on RecordCommandBuffer() )
 
     /*VkViewport viewport{};
 
@@ -673,16 +685,6 @@ void HelloVulkan::CreateGraphicsPipeline()
     colorBlendAttachment.srcAlphaBlendFactor = VK_BLEND_FACTOR_ONE; 
     colorBlendAttachment.dstAlphaBlendFactor = VK_BLEND_FACTOR_ZERO; 
     colorBlendAttachment.alphaBlendOp = VK_BLEND_OP_ADD; 
-
-    //colorBlendAttachment.blendEnable = VK_TRUE;
-
-    //colorBlendAttachment.srcColorBlendFactor = VK_BLEND_FACTOR_SRC_ALPHA;
-    //colorBlendAttachment.dstColorBlendFactor = VK_BLEND_FACTOR_ONE_MINUS_SRC_ALPHA;
-    //colorBlendAttachment.colorBlendOp = VK_BLEND_OP_ADD;
-
-    //colorBlendAttachment.srcAlphaBlendFactor = VK_BLEND_FACTOR_ONE;
-    //colorBlendAttachment.dstAlphaBlendFactor = VK_BLEND_FACTOR_ZERO;
-    //colorBlendAttachment.alphaBlendOp = VK_BLEND_OP_ADD;
 
     VkPipelineColorBlendStateCreateInfo colorBlending{};
 
@@ -875,6 +877,8 @@ void HelloVulkan::CreateTextureImage()
 
     int texWidth, texHeight, texChannels;
 
+    // Old texture path while testing Depth Buffer
+    
     //std::string path = std::string(TEXTURES_DIRECTORY) + std::string("texture.png");
 
     stbi_uc* pixels = stbi_load(texturePath.c_str(), &texWidth, &texHeight, &texChannels, STBI_rgb_alpha);
@@ -929,10 +933,10 @@ void HelloVulkan::CreateTextureImage()
     CopyBufferToImage(stagingBuffer, textureImage, 
         static_cast<uint32_t>(texWidth), static_cast<uint32_t>(texHeight));
 
+    // Transitioned to VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL while generating mipmaps
+
     /* TransitionImageLayout(textureImage, VK_FORMAT_R8G8B8A8_SRGB,
           VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL, mipLevels); */
-
-    // Transitioned to VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL while generating mipmaps
 
     GenerateMipmaps(textureImage, VK_FORMAT_R8G8B8A8_SRGB, texWidth, texHeight, mipLevels);
 
@@ -991,57 +995,6 @@ void HelloVulkan::CreateTextureSampler()
 
 void HelloVulkan::LoadModel()
 {
-    /* tinyobj::attrib_t attrib;
-
-    std::vector<tinyobj::shape_t> shapes;
-    std::vector<tinyobj::material_t> materials;
-
-    std::string warn, err;
-    
-    if (!tinyobj::LoadObj(&attrib, &shapes, &materials, &warn, &err, modelPath.c_str())) {
-        
-        throw std::runtime_error(warn + err);
-        
-    }
-
-    std::unordered_map<Vertex, uint32_t> uniqueVertices{};
-
-    for (const auto& shape : shapes) {
-
-        for (const auto& index : shape.mesh.indices) {
-            
-            Vertex vertex{};
-
-            vertex.position = {
-
-                attrib.vertices[3 * index.vertex_index + 0],
-                attrib.vertices[3 * index.vertex_index + 1],
-                attrib.vertices[3 * index.vertex_index + 2]
-
-            };
-         
-            vertex.texCoord = {
-                
-                attrib.texcoords[2 * index.texcoord_index + 0],
-                1.0f - attrib.texcoords[2 * index.texcoord_index + 1]
-
-            };
-          
-            vertex.color = { 1.0f, 1.0f, 1.0f };
-
-            if (uniqueVertices.count(vertex) == 0) {
-
-                uniqueVertices[vertex] = static_cast<uint32_t>(vertices.size());
-                vertices.push_back(vertex);
-
-            }
-            
-            indices.push_back(uniqueVertices[vertex]);
-            
-        }
-
-    } */
-
     const aiScene* scene = aiImportFile(modelPath.c_str(), ASSIMP_LOAD_FLAGS);
 
     if (scene != nullptr && scene->HasMeshes())
@@ -1383,8 +1336,10 @@ void HelloVulkan::RecreateSwapChain()
 
     CreateSwapChain();
     CreateImageViews();
+
     CreateColorResources();
     CreateDepthResources();
+
     CreateFramebuffers();
 }
 
@@ -1966,12 +1921,16 @@ void HelloVulkan::RecordCommandBuffer(VkCommandBuffer commandBuffer, uint32_t im
     VkBuffer vertexBuffers[] = { vertexBuffer };
     VkDeviceSize offsets[] = { 0 };
 
+    // Start Drawing Calls
+
     vkCmdBindVertexBuffers(commandBuffer, 0, 1, vertexBuffers, offsets);
     vkCmdBindIndexBuffer(commandBuffer, indexBuffer, 0, VK_INDEX_TYPE_UINT32);
 
     vkCmdBindDescriptorSets(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, pipelineLayout, 0, 1, &descriptorSets[currentFrame], 0, nullptr);
 
     vkCmdDrawIndexed(commandBuffer, static_cast<uint32_t>(indices.size()), 1, 0, 0, 0);
+
+    // End Drawing Calls
 
     vkCmdEndRenderPass(commandBuffer);
 
@@ -2262,7 +2221,7 @@ std::vector<const char*> HelloVulkan::GetRequiredExtensions()
 
         std::cout << "Could not get the number of required instance extensions from SDL." << std::endl;
 
-        return {}; // Returns an empty vector
+        return {};
 
     }
 
@@ -2272,7 +2231,7 @@ std::vector<const char*> HelloVulkan::GetRequiredExtensions()
 
         std::cout << "Could not get the names of required instance extensions from SDL." << std::endl;
         
-        return {}; // Returns an empty vector
+        return {};
 
     }
 
@@ -2541,13 +2500,9 @@ void HelloVulkan::CleanUp()
 
     }
 
-    // Destroy the Vulkan Surface
     vkDestroySurfaceKHR(instance, surface, nullptr);
-
-    // Destroy the Vulkan Instance
     vkDestroyInstance(instance, nullptr);
 
-    // Destroy the Window and Quit SDL
     SDL_DestroyWindow(window);
     SDL_Quit();
 }

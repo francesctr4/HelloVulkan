@@ -12,6 +12,9 @@
       <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
       <Extensions>cpp;c;cc;cxx;c++;cppm;ixx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
     </Filter>
+    <Filter Include="Libraries">
+      <UniqueIdentifier>{adf8c19a-6f70-4843-aad1-56fbda5f4f7f}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Source\HelloVulkan.cpp">
@@ -28,20 +31,17 @@
     <ClInclude Include="Source\HelloVulkan.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Source\MathGeoLib.h">
-      <Filter>Header Files</Filter>
+    <ClInclude Include="Source\Vulkan.h">
+      <Filter>Libraries</Filter>
     </ClInclude>
     <ClInclude Include="Source\SDL2.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Vulkan.h">
-      <Filter>Header Files</Filter>
+      <Filter>Libraries</Filter>
     </ClInclude>
     <ClInclude Include="Source\glmath.h">
-      <Filter>Header Files</Filter>
+      <Filter>Libraries</Filter>
     </ClInclude>
     <ClInclude Include="Source\Assimp.h">
-      <Filter>Header Files</Filter>
+      <Filter>Libraries</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
