@@ -5,10 +5,12 @@
 ## Project Description
 
 This project consists on integrating Vulkan in a Visual Studio application from scratch, following the tutorial mentioned below. 
-The program has the functionality required for a well-behaved Vulkan application. It is intended to serve as an starting point 
-for bigger projects, further improvements or more complex features.
 
-The application has a built-in Demo Scene, in order to visualize the results of the Vulkan Integration in practise.
+The program has the functionality required for a well-behaved Vulkan application, up to handling 3D model rendering on screen. In addition, 
+some advanced features such as _**Mipmap generation**_ and _**Multisampling (MSAA)**_ have been added. It is intended to serve as an starting 
+point for bigger projects, further improvements or more complex features.
+
+* The application has a built-in Demo Scene, in order to visualize the results of the Vulkan Integration in practise.
 
 > [!IMPORTANT]
 > #### [Vulkan Tutorial](https://vulkan-tutorial.com/) by Alexander Overvoorde (April 2023).
