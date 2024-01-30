@@ -4,12 +4,15 @@
 
 ## Project Description
 
+This project consists on integrating Vulkan in a Visual Studio application from scratch, following the tutorial mentioned below. 
+The program has the functionality required for a well-behaved Vulkan application. It is intended to serve as an starting point 
+for bigger projects, further improvements or more complex features.
 
-
-### [Vulkan Tutorial](https://vulkan-tutorial.com/) by Alexander Overvoorde (April 2023)
+The application has a built-in Demo Scene, in order to visualize the results of the Vulkan Integration in practise.
 
 > [!IMPORTANT]
-> #### It is required to download the [Vulkan SDK](https://vulkan.lunarg.com/) to compile the solution.
+> #### [Vulkan Tutorial](https://vulkan-tutorial.com/) by Alexander Overvoorde (April 2023).
+> #### It is _required_ to download the [Vulkan SDK](https://vulkan.lunarg.com/) to compile the solution.
 
 ## Libraries used
 
