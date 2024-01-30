@@ -1,15 +1,27 @@
-# HelloVulkan
+![Vulkan](https://github.com/francesctr4/HelloVulkan/assets/99948892/76ebfd58-c963-424d-b0b4-0970b58d09cc)
 
-![image](https://github.com/francesctr4/HelloVulkan/assets/99948892/19563997-76bd-43c3-be49-1c8dd5dadef6)
+# Vulkan Integration by Francesc Teruel Rodríguez
 
-### [Tutorial Link](https://vulkan-tutorial.com/) by Alexander Overvoorde
+## Project Description
 
-### It is required to download the [Vulkan SDK](https://vulkan.lunarg.com/) to compile the solution.
 
-## External Assets used:
 
-<div class="sketchfab-embed-wrapper"> <iframe title="Viking room" frameborder="0" allowfullscreen mozallowfullscreen="true" webkitallowfullscreen="true" allow="autoplay; fullscreen; xr-spatial-tracking" xr-spatial-tracking execution-while-out-of-viewport execution-while-not-rendered web-share src="https://sketchfab.com/models/a49f1b8e4f5c4ecf9e1fe7d81915ad38/embed"> </iframe> <p style="font-size: 13px; font-weight: normal; margin: 5px; color: #4A4A4A;"> <a href="https://sketchfab.com/3d-models/viking-room-a49f1b8e4f5c4ecf9e1fe7d81915ad38?utm_medium=embed&utm_campaign=share-popup&utm_content=a49f1b8e4f5c4ecf9e1fe7d81915ad38" target="_blank" rel="nofollow" style="font-weight: bold; color: #1CAAD9;"> Viking room </a> by <a href="https://sketchfab.com/nigelgoh?utm_medium=embed&utm_campaign=share-popup&utm_content=a49f1b8e4f5c4ecf9e1fe7d81915ad38" target="_blank" rel="nofollow" style="font-weight: bold; color: #1CAAD9;"> nigelgoh </a> on <a href="https://sketchfab.com?utm_medium=embed&utm_campaign=share-popup&utm_content=a49f1b8e4f5c4ecf9e1fe7d81915ad38" target="_blank" rel="nofollow" style="font-weight: bold; color: #1CAAD9;">Sketchfab</a></p></div>
+### [Vulkan Tutorial](https://vulkan-tutorial.com/) by Alexander Overvoorde (April 2023)
+
+> [!IMPORTANT]
+> #### It is required to download the [Vulkan SDK](https://vulkan.lunarg.com/) to compile the solution.
+
+## Libraries used
+
+### SDL2 - [Download](https://github.com/libsdl-org/SDL/releases/tag/release-2.28.5)
+### Assimp - [Download](https://github.com/assimp/assimp/releases/tag/v5.3.1)
+### stb_image - [Download](https://github.com/nothings/stb/blob/master/stb_image.h)
+### glmath - [Download](https://github.com/g-truc/glm/releases/tag/0.9.9.8)
+
+## Third Party Assets used
+
+### [Viking room](https://sketchfab.com/3d-models/viking-room-a49f1b8e4f5c4ecf9e1fe7d81915ad38) by [nigelgoh](https://sketchfab.com/nigelgoh) on [Sketchfab](https://sketchfab.com/)
 
 # Vulkan Demo Scene Results
 
-![image](https://github.com/francesctr4/HelloVulkan/assets/99948892/35c55940-e215-49e0-b2c7-509bd609a2af)
+![Results](https://github.com/francesctr4/HelloVulkan/assets/99948892/35c55940-e215-49e0-b2c7-509bd609a2af)
